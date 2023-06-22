@@ -1,15 +1,14 @@
 #ifndef MONTY_H
 #define MONTY_H
-
-#include <ctype.h>
-#include <stdlib.h>
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <unistd.h>
-
+#include <fcntl.h>
+#include <string.h>
+#include <ctype.h>
+#include <limits.h>
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
  * @n: integer
@@ -21,11 +20,10 @@
  */
 typedef struct stack_s
 {
-		int n;
-		struct stack_s *prev;
-		struct stack_s *next;
+	int n;
+	struct stack_s *prev;
+	struct stack_s *next;
 } stack_t;
-
 /**
  * struct instruction_s - opcode and its function
  * @opcode: the opcode
@@ -36,31 +34,35 @@ typedef struct stack_s
  */
 typedef struct instruction_s
 {
-		char *opcode;
-		void (*f)(stack_t **stack, unsigned int line_number);
+	char *opcode;
+	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
-
-#define SIZE 100
-#define STACKS 0
-#define QUEUES 1
-int stack[SIZE];
 /**
- * struct variable_s - struct to contain the main variables of the Monty interpreter
- * @queues: flag to determine if in stack vs queue mode
- * @stack_length: length of the stack
- */
-typedef struct variable_s
+* struct col_s - Struct for holding context data.
+* @arg:  Argument string passed to Monty program
+* @line: Current line being processed from Monty file
+* @file: File pointer to Monty file being interpreted
+*/
+typedef struct col_s
 {
-	int queues;
-	size_t stack_length;
-} variable_t;
-extern variable_t variable;
-stack_t *new_node_create(stack_t **stack, const int n);
-int check_for_digit(char *str);
-void _push(stack_t **stack, unsigned int line_number);
-int main(int argc, char *argv[]);
-void _pall(stack_t **stack, unsigned int line_number);
-void _pint(stack_t **stack, unsigned int line_number);
+	char *arg;
+	char *line;
+	FILE *file;
+} col_t;
+
+extern col_t col;
+
+int execute(char *line, unsigned int line_number, stack_t **stack);
+/*void parse_line(char *line, char *opcode, char *arg); */
+void push(stack_t **stack, unsigned int line_number);
+void push_stack(stack_t **stack, int value);
 void free_stack(stack_t **stack);
-void _pop(stack_t **stack, __attribute__((unused))unsigned int line_number);
+void pall(stack_t **head, unsigned int line_number);
+void pint(stack_t **top, unsigned int line_number);
+void pop(stack_t **top, unsigned int line_number);
+void swap(stack_t **top, unsigned int line_number);
+void add(stack_t **top, unsigned int line_number);
+void nop(stack_t **top, unsigned int line_number);
+void sub(stack_t **top, unsigned int line_number);
+void mul(stack_t **top, unsigned int line_number);
 #endif

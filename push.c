@@ -1,24 +1,33 @@
 #include "monty.h"
 /**
-* pushnode - pushes a node to the top of the stack in a linked list
-* @head: the pointer to the hea node
-* @value: the dataa to be pushed onto the stack
-* Return: no return
+* push - Adds a new element to the top of the stack.
+* @top: A pointer to the top of the stack.
+* @line_number: The line number of the instruction being executed.
 */
-void pushnode(stack_t **head, int value)
+void push(stack_t **top, unsigned int line_number)
 {
-stack_t *new_node, *curr;
-curr = *head;
-new_node = malloc(sizeof(stack_t));
-if (new_node == NULL)
-{
-fprintf(stderr, "Error: malloc failed\n");
-exit(EXIT_FAILURE);
-}
-if (curr)
-curr->prev = new_node;
-new_node->n = value;
-new_node->next = *head;
-new_node->prev = NULL;
-*head = new_node;
+	int value;
+	char *endptr;
+
+	if (col.arg == NULL || *col.arg == '\0' || isspace(*col.arg))
+	{
+		fprintf(stderr, "L%u: usage: push integer\n", line_number);
+		free_stack(top);
+		free(col.line);
+		fclose(col.file);
+		exit(EXIT_FAILURE);
+	}
+	value = strtol(col.arg, &endptr, 10);
+
+	if (*endptr != '\0' || endptr == col.arg ||
+	 value > INT_MAX || value < INT_MIN)
+	{
+		fprintf(stderr, "L%u: usage: push integer\n", line_number);
+		free_stack(top);
+		free(col.line);
+		if (col.file != NULL)
+			fclose(col.file);
+		exit(EXIT_FAILURE);
+	}
+		push_stack(top, value);
 }
